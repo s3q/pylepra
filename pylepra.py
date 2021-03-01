@@ -2,7 +2,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import re
-
+import os
 
 class Sendmail:
 
@@ -10,11 +10,11 @@ class Sendmail:
         self.sender_email = str(sender_email).strip()  # <---- write your email
         self.password = str(password).strip()  # <---- write password
 
-        # <--- receiver email : salimalsulaimi204@gmail.com
+        # <--- receiver email : 
         self.receiver_email = input("Type receiver email and press enter : ")
-        # <---- messsage subject
+        # <---- messsage subject :
         self.subject = input("Type message subject and press enter : ").strip()
-        # <---- message content (Html)
+        # <---- message content (Html) :
         self.content = input(
             "Type message content and press enter : \n").strip()
 
@@ -68,3 +68,4 @@ sendmail = Sendmail("", # --> your account
                     )
 sendmail.preparation()
 sendmail.send()
+
