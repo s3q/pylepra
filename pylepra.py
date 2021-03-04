@@ -342,8 +342,8 @@ class instabot:
 
 insta = instabot("geckodriver.exe")
 
-insta.login("s3q.x",  # username
-            "s3#dev@in")  # password
+insta.login("username",  # username
+            "password")  # password
 
 
 insta.getpost("")  # url post
