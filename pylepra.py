@@ -175,8 +175,6 @@ mail = Maillepra("example@gmail.com",  # your account
 class instabot:
     def __init__(self, executable_path):
         self.browser = webdriver.Firefox(executable_path=executable_path)
-        self.browser.execute_script(
-            "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
     def login(self, username, password):
 
