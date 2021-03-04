@@ -174,7 +174,6 @@ mail = Maillepra("example@gmail.com",  # your account
 
 
 class instabot:
-<<<<<<< HEAD
     def __init__(self, executable_path, hidebrowser=False):
 
         browser_options = Options()
@@ -184,10 +183,6 @@ class instabot:
 
         self.browser = webdriver.Firefox(
             executable_path=executable_path, options=browser_options)
-=======
-    def __init__(self, executable_path):
-        self.browser = webdriver.Firefox(executable_path=executable_path)
->>>>>>> ef9cfe0ac050e8d50ee9cb27d403c15f82a3a4c6
 
     def login(self, username, password):
 
@@ -410,10 +405,7 @@ insta = instabot("geckodriver.exe")
 
 insta.login("username",  # username
             "password")  # password
-<<<<<<< HEAD
 
-=======
->>>>>>> ef9cfe0ac050e8d50ee9cb27d403c15f82a3a4c6
 
 # insta.getpost("")  # url post
 
