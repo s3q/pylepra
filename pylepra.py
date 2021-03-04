@@ -11,6 +11,7 @@ import json
 from time import sleep
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -173,10 +174,15 @@ mail = Maillepra("example@gmail.com",  # your account
 
 
 class instabot:
-    def __init__(self, executable_path):
-        self.browser = webdriver.Firefox(executable_path=executable_path)
-        self.browser.execute_script(
-            "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+    def __init__(self, executable_path, hidebrowser=False):
+
+        browser_options = Options()
+
+        if hidebrowser:
+            browser_options.add_argument('--headless')
+
+        self.browser = webdriver.Firefox(
+            executable_path=executable_path, options=browser_options)
 
     def login(self, username, password):
 
@@ -184,6 +190,10 @@ class instabot:
         self.password = password
 
         self.instaloginurl = "https://www.instagram.com/accounts/login/"
+
+        print(" - Start Bot ...")
+
+        print(" - Getting login page | Loading ...")
 
         self.browser.get(self.instaloginurl)
 
@@ -210,6 +220,22 @@ class instabot:
         sleep(15)
         # self.browser.get("https://www.instagram.com/accounts/onetap/")
 
+    def getuserpage(self, user):
+
+        print(" - Getting user page | loading ...")
+
+        self.targetusername = user
+
+        self.userpageurl = "https://www.instagram.com/{}/".format(user)
+
+        try:
+            self.browser.get(self.userpageurl)
+
+            print(" - The user page has been fetched successfully")
+
+        except:
+
+            print(" - The user page was not successfully fetched")
 
     def getpost(self, posturl):
 
@@ -227,132 +253,170 @@ class instabot:
         try:
             post_owner = self.browser.find_element_by_css_selector(
                 ".sqdOP.yWX7d._8A5w5.ZIAjV").text
-            return f"This is posted under the username {post_owner}"
+            return f" - This is posted under the username {post_owner}"
         except:
-            return "can't find username . you shoud be open post window"
+            return " - Can't find username .!"
 
     def getlikepostbool(self):
 
-        likestatus = False
+        sleep(2)
+
+        likestatus = None
 
         # "span.fr66n button.wpO6b[type='button'] .QBdPU .FY9nT svg"
 
+        # "span.fr66n button.wpO6b[type='button']"
         try:
-            # "span.fr66n button.wpO6b[type='button']"
             likertext = self.browser.find_element_by_css_selector(
-                "span.fr66n button.wpO6b[type='button'] .QBdPU .FY9nT svg").get_attribute("aria-label").lower()
+                "span.fr66n button.wpO6b[type='button'] .QBdPU span svg").get_attribute("aria-label").lower()
 
             if likertext == "like":
                 likestatus = False
             elif likertext == "unlike":
                 likestatus = True
-                
-            sleep(2)
+            return likestatus
 
         except:
-            print(" - There was something wrong ||")
-
-        return likestatus
-
-    def likeandcommentallposts(self):
-        #    , commentlist, countforrepeatecomment, boollike
-
-        allposts = self.browser.find_elements(
-            By.CSS_SELECTOR, "div.v1Nh3.kIKUG._bz0w")
-
-        print(allposts)
+            return "stop"
 
     def likepost(self, boollike):
 
-        print("# - LIKING ...")
+        print(" - Liking ...")
 
-        try:
+        like_button = self.browser.find_element_by_css_selector(
+            "span.fr66n button.wpO6b[type='button']")
 
-            like_button = self.browser.find_element_by_css_selector(
-                "span.fr66n button.wpO6b[type='button']")
+        if self.getlikepostbool() == True:
 
-            if self.getlikepostbool():
-
-                if not boollike:
-                    like_button.click()
-            else:
-                if boollike:
-                    like_button.click()
-
-        except:
-            print(" - There was something wrong ||")
+            if not boollike:
+                like_button.click()
+                print(" - Removing like sign")
+        else:
+            if boollike:
+                like_button.click()
+                print(" - Adding like sign")
 
     def commentpost(self, commentlist, countforrepeatcomment=1):
 
-        print("# - COMMENTING ...")
+        print(" - Commenting ...")
 
-        try:
+        comment_count = 0
 
-            comment_count = 0
+        post_owner = self.getpostowner()
 
-            post_owner = self.getpostowner()
+        print(f" - This is posted under the username {post_owner}")
 
-            print(f" - This is posted under the username {post_owner}")
+        if self.getlikepostbool() == True:
+            liketext = "like"
+        else:
+            liketext = "unlike"
 
-            if self.getlikepostbool():
-                liketext = "like"
-            else:
-                liketext = "unlike"
+        print(f" - You put a {liketext} sign in this post")
 
-            print(f" - You put a {liketext} sign in this post")
+        print(" - Start making comments ...")
 
-            print(" - Start making comments ...")
+        for i in range(countforrepeatcomment):
 
-            for i in range(countforrepeatcomment):
+            random.shuffle(commentlist)
 
-                random.shuffle(commentlist)
+            for commenttext in commentlist:
 
-                for commenttext in commentlist:
+                comment_input = self.browser.find_element_by_css_selector(
+                    "textarea[aria-label='Add a comment…']")
 
-                    comment_input = self.browser.find_element_by_css_selector(
-                        "textarea[aria-label='Add a comment…']")
+                sleep(8)
 
-                    sleep(8)
+                self.browser.execute_script(
+                    """document.querySelector("textarea[aria-label='Add a comment…']").value = ''""")
 
-                    self.browser.execute_script(
-                        """document.querySelector("textarea[aria-label='Add a comment…']").value = ''""")
+                # click on textarea/comment box and enter comment
+                (
+                    ActionChains(self.browser)
+                    .move_to_element(comment_input)
+                    .click()
+                    .send_keys(commenttext + Keys.RETURN)
+                    .perform()
 
-                    # click on textarea/comment box and enter comment
-                    (
-                        ActionChains(self.browser)
-                        .move_to_element(comment_input)
-                        .click()
-                        .send_keys(commenttext + Keys.RETURN)
-                        .perform()
+                )
 
-                    )
-                    print(" - Posting comment ...")
+                print(f"#{comment_count} - {commenttext}")
 
-                    print(f"#{comment_count} - {commenttext}")
+                print(" - Posting comment ...")
 
-                    comment_count += 1
+                comment_count += 1
 
-                    if comment_count % 5 == 0:
-                        print(" - Sleeping ( 20 ) seconds ...")
-                        sleep(20)
+                if comment_count % 5 == 0:
+                    print(" - Sleeping ( 20 ) seconds ...")
+                    sleep(20)
 
-        except:
-            print(" - There was something wrong ||")
+                if comment_count % 15 == 0:
+                    print(" - Sleeping ( 40 ) seconds ...")
+                    sleep(40)
+
+    def likeandcommentallposts(self, commentlist, boollike, countforrepeatcomment=1, countforrepeatallfn=1):
+        #    , commentlist, countforrepeatecomment, boollike
+
+        for i in countforrepeatallfn:
+
+            print(" - Getting all posts | Loading ...")
+
+            sleep(8)
+
+            allposts = self.browser.find_elements(
+                By.CSS_SELECTOR, "div.v1Nh3.kIKUG._bz0w")
+
+            for postdiv in allposts:
+
+                # open post :
+                print(" - Opening post")
+                postdiv.click()
+
+                sleep(8)
+
+                # set like sign :
+                self.likepost(boollike)
+
+                # loop cooment :
+                self.commentpost(commentlist, countforrepeatcomment)
+
+                sleep(2)
+
+                # close post :
+                print(" - Closing post")
+                # close_div = self.browser.find_element_by_css_selector(
+                #     "div._2dDPU.CkGkG[role='dialog']")
+
+                close_button = self.browser.find_element_by_css_selector(
+                    ".Igw0E.IwRSH.eGOV_._4EzTm.BI4qX.qJPeX.fm1AK.TxciK.yiMZG button.wpO6b[type='button']")
+
+                # ".Igw0E.IwRSH.eGOV_._4EzTm.BI4qX.qJPeX.fm1AK.TxciK.yiMZG button.wpO6b[type='button']"
+                close_button.click()
+
+                sleep(2)
+
+                allposts = self.browser.find_elements(
+                    By.CSS_SELECTOR, "div.v1Nh3.kIKUG._bz0w")
+
+                print(" - Sleeping ( 20 ) seconds ...")
+                sleep(20)
 
 
 insta = instabot("geckodriver.exe")
 
-insta.login("s3q.x",  # username
-            "s3#dev@in")  # password
+insta.login("username",  # username
+            "password")  # password
 
 
-insta.getpost("")  # url post
+# insta.getpost("")  # url post
 
-insta.likepost(True)  # set like for post (True) else (false)
+# insta.likepost(True)  # set like for post (True) else (false)
 
-insta.likeandcommentallposts()
+insta.getuserpage("s3q.x")
 
-insta.commentpost(["🧡🔥🔥.", "💛🔥🔥.", "❤️🔥🔥.", "🖤🔥🔥.", "👌😍😍.",
-                   "💜🔥🔥.", "💙🔥🔥.", "💚🔥🔥.", "💯🔥🔥.", "😍🔥🔥."],  # comment list
+insta.likeandcommentallposts(["🧡🧡.", "💛💛.", "❤️❤️.", "🖤🖤.", "👌👌.",
+                              "💜💜.", "💙💙.", "💚💚.", "💯🔥.", "😍😍."], True)
 
-                  3)  # count for repeat comment
+# insta.commentpost(["🧡🔥🔥.", "💛🔥🔥.", "❤️🔥🔥.", "🖤🔥🔥.", "👌😍😍.",
+#                    "💜🔥🔥.", "💙🔥🔥.", "💚🔥🔥.", "💯🔥🔥.", "😍🔥🔥."],  # comment list
+
+#                   3)  # count for repeat comment
