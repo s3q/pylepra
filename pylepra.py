@@ -17,7 +17,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 
 
-
 def randomlist(listo, lenpm):
 
     random.shuffle(listo)
@@ -61,38 +60,36 @@ class Maillepra:
     def sendemail(self):
         #
         if self.preparationforsendemail():
-            try:
-                # manages a connection to an SMTP or ESMTP server
-                with smtplib.SMTP("smtp.gmail.com", 587) as server:
-                    # Puts the connection to the SMTP server into TLS mode :
-                    server.starttls()
+
+            # manages a connection to an SMTP or ESMTP server
+            with smtplib.SMTP("smtp.gmail.com", 587) as server:
+                # Puts the connection to the SMTP server into TLS mode :
+                server.starttls()
+
+                #
+                if not server.login(self.email, self.password):
+                    print(" - Failed to login .!")
+                else:
+
+                    message = MIMEMultipart("alternative")
+                    message["From"] = self.email
+                    message["To"] = self.receiver_email
+                    message["Subject"] = self.subject
+
+                    # <---- Class for generating text/* type MIME documents
+                    htmlPart = MIMEText(self.content, 'html')
+
+                    # <---- Add the given payload to the current payload
+                    message.attach(htmlPart)
+
+                    print(" - Loading ...")
 
                     #
-                    if not server.login(self.email, self.password):
-                        print(" - Failed to login .!")
-                    else:
+                    if server.sendmail(self.email, self.receiver_email, message.as_string()):
+                        print(" - The email has been sent successfully .")
 
-                        message = MIMEMultipart("alternative")
-                        message["From"] = self.email
-                        message["To"] = self.receiver_email
-                        message["Subject"] = self.subject
-
-                        # <---- Class for generating text/* type MIME documents
-                        htmlPart = MIMEText(self.content, 'html')
-
-                        # <---- Add the given payload to the current payload
-                        message.attach(htmlPart)
-
-                        print(" - Loading ...")
-
-                        #
-                        if server.sendmail(self.email, self.receiver_email, message.as_string()):
-                            print(" - The email has been sent successfully .")
-
-                    # Terminate the SMTP session :
-                    server.quit()
-            except:
-                print(" - Something is wrong .!")
+                # Terminate the SMTP session :
+                server.quit()
 
     def getinbox(self, emailindex):
 
@@ -177,6 +174,7 @@ class Maillepra:
             print(" - Write header data in hedaer.json file . done")
             f.close()
 
+
 ############# ---- #############
 mail = Maillepra("example@gmail.com",  # your account
                  "password")  # password
@@ -189,7 +187,6 @@ mail = Maillepra("example@gmail.com",  # your account
 mail.getinbox(0)
 mail.saveemail()
 ############# ---- #############
-
 
 
 class Instabot:
