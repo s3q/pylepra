@@ -17,6 +17,22 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 
 
+
+def randomlist(listo, lenpm):
+
+    random.shuffle(listo)
+
+    if len(listo) > lenpm:
+        listm = listo[:lenpm]
+        listo = listm
+    elif len(listo) < lenpm:
+        listp = random.sample(listo[:lenpm - len(listo)], lenpm - len(listo))
+        random.shuffle(listp)
+        listo += (i for i in listp)
+
+    return listo
+
+
 class Maillepra:
 
     def __init__(self, email, password):
@@ -161,7 +177,7 @@ class Maillepra:
             print(" - Write header data in hedaer.json file . done")
             f.close()
 
-
+############# ---- #############
 mail = Maillepra("example@gmail.com",  # your account
                  "password")  # password
 
@@ -172,9 +188,11 @@ mail = Maillepra("example@gmail.com",  # your account
 #  - For Save Email :
 mail.getinbox(0)
 mail.saveemail()
+############# ---- #############
 
 
-class instabot:
+
+class Instabot:
     def __init__(self, executable_path, hidebrowser=False):
 
         browser_options = Options()
@@ -185,151 +203,8 @@ class instabot:
         self.browser = webdriver.Firefox(
             executable_path=executable_path, options=browser_options)
 
-    # def signup(self, email, epassword, fullname, username, password):
-
-    #     mail = Maillepra(email, epassword)
-
-    #     self.signupemailornumphone = email
-    #     self.signupfullname = fullname
-    #     self.signupusername = username
-    #     self.signuppassword = password
-
-    #     self.instasignupurl = "https://www.instagram.com/accounts/emailsignup/"
-
-    #     print(" - Start Bot ...")
-
-    #     print(" - Getting login page | Loading ...")
-
-    #     try:
-    #         self.browser.get(self.instasignupurl)
-
-    #         print(" - The post has been fetched successfully")
-    #     except:
-    #         print(" - The post was not successfully fetched")
-
-    #     sleep(2)
-
-    #     emailornumphone_input = self.browser.find_element_by_css_selector(
-    #         "input[name='emailOrPhone']")
-    #     fullname_input = self.browser.find_element_by_css_selector(
-    #         "input[name='fullName']")
-    #     username_input = self.browser.find_element_by_css_selector(
-    #         "input[name='username']")
-    #     password_input = self.browser.find_element_by_css_selector(
-    #         "input[name='password']")
-    #     submit_button = self.browser.find_element_by_xpath(
-    #         "//button[@type='submit']")
-
-    #     emailornumphone_input.send_keys(email)
-    #     fullname_input.send_keys(fullname)
-    #     username_input.send_keys(username)
-    #     password_input.send_keys(password)
-    #     submit_button.click()
-
-    #     sleep(6)
-
-    #     months_input = self.browser.find_element_by_css_selector(
-    #         "select[title='Month:']")
-    #     month_input = self.browser.find_element_by_css_selector(
-    #         "select[title='Month:'] option[value='8']")
-    #     days_input = self.browser.find_element_by_css_selector(
-    #         "select[title='Day:']")
-    #     day_input = self.browser.find_element_by_css_selector(
-    #         "select[title='Day:'] option[value='5']")
-    #     years_input = self.browser.find_element_by_css_selector(
-    #         "select[title='Year:']")
-    #     year_input = self.browser.find_element_by_css_selector(
-    #         "select[title='Year:'] option[value='2000']")
-
-    #     months_input.click()
-    #     month_input.click()
-    #     days_input.click()
-    #     day_input.click()
-    #     years_input.click()
-    #     year_input.click()
-
-    #     sleep(0.5)
-
-    #     next_button = self.browser.find_element_by_css_selector(
-    #         "button.sqdOP.L3NKy._4pI4F.y3zKF[type='button']")
-    #     next_button.click()
-
-    #     print(" - Wite email confirmation code ...")
-
-    #     sleep(20)
-
-    #     confirmationcode_input = self.browser.find_element_by_css_selector(
-    #         "input[name='email_confirmation_code']")
-    #     submit_button_2 = self.browser.find_element_by_xpath(
-    #         "//button[@type='submit']")
-
-    #     print(" - Get confirmation code ...")
-
-    #     sleep(6)
-
-    #     confirmationcode_input.send_keys(mail.getinbox(
-    #         0)["header"]["subject"][:6])
-    #     submit_button_2.click()
-
-    #     print(" - You have sign up successfully")
-
-    #     sleep(15)
-
-    # def connecttomysql(self, user, password, host):
-
-    #     configsqlconnect = {
-    #         "user": user,
-    #         "password": password,
-    #         "host": host
-    #     }
-
-    #     self.sqlconnect = mysql.connector.connect(**configsqlconnect)
-    #     self.sqlcursor = self.sqlconnect.cursor()
-
-    #     return self.sqlconnect
-
-    # def savesignupinsqldb(self):
-
-    #     print(" - Create insta database if not exists")
-
-    #     self.sqlcursor.execute("CREATE DATABASE IF NOT EXISTS insta")
-
-    #     print(" - Select insta database")
-    #     self.sqlconnect.database = "insta"
-
-    #     print(" - Create userssignup tablse in insta database if not exists")
-    #     self.sqlcursor.execute("CREATE TABLE IF NOT EXISTS `insta`.`userssignup` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `email-or-phone` CHAR(255) NOT NULL , `fullname` CHAR(255) NOT NULL , `username` CHAR(255) NOT NULL , `password` CHAR(255) NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB CHARSET=utf8 COLLATE utf8_general_ci;")
-
-    #     print(" - Make id and username columns * UNIQUE")
-    #     self.sqlcursor.execute("ALTER TABLE `userssignup` ADD UNIQUE(`id`);")
-    #     self.sqlcursor.execute(
-    #         "ALTER TABLE `userssignup` ADD UNIQUE(`username`);")
-
-    #     print(" - Insert data ...")
-    #     self.sqlcursor.execute(
-    #         f"""INSERT INTO `userssignup` (`id`, `email-or-phone`, `fullname`, `username`, `password`) VALUES ('', '{self.signupemailornumphone}', '{self.signupfullname}', '{self.signupusername}', '{self.signuppassword}');""")
-
-    #     print(" - Fetchall all rows")
-    #     self.sqlcursor.execute("SELECT * FROM `userssignup`")
-    #     result = self.sqlcursor.fetchall()
-    #     print(" - Result : ", result, "\n\n")
-
-    #     print(" - Commiting ..")
-    #     self.sqlconnect.commit()
-
-    #     return result
-
-    # def getuserssignupinsqldb(self):
-
-    #     print(" - Fetchall all rows")
-    #     self.sqlcursor.execute("SELECT * FROM `userssignup`")
-    #     result = self.sqlcursor.fetchall()
-    #     print(" - Result : ", result, "\n\n")
-
-    #     print(" - Commiting ..")
-    #     self.sqlconnect.commit()
-
-    #     return result
+    def getcbrowser(self):
+        return self.browser
 
     def login(self, username, password):
 
@@ -359,7 +234,7 @@ class instabot:
 
         print(" - You have logged in successfully")
 
-        sleep(15)
+        sleep(6)
         # self.browser.get("https://www.instagram.com/accounts/onetap/")
 
     def getuserpage(self, user):
@@ -438,7 +313,38 @@ class instabot:
                 like_button.click()
                 print(" - Adding like sign")
 
-    def commentpost(self, commentlist, countforrepeatcomment=1):
+    def sendpost(self, userslist):
+
+        print(" - Sending ...")
+
+        sendpost_button = self.browser.find_element_by_css_selector(
+            "span._5e4p button.wpO6b[type=button]")
+        sendpost_button.click()
+
+        print(" - Searching and selecting user ...")
+        sleep(6)
+
+        for user in userslist:
+
+            search_input = self.browser.find_element_by_css_selector(
+                "input.j_2Hd.uMkC7.M5V28[name='queryBox']")
+            search_input.send_keys(user + Keys.RETURN)
+
+            sleep(4)
+
+            usertg = self.browser.find_elements(
+                By.CSS_SELECTOR, "div.Igw0E.rBNOH.eGOV_.ybXk5._4EzTm.XfCBB.HVWg4")
+            usertg[0].click()
+
+            print(f" - Select {user}")
+
+        print(" - Send post for all users ...")
+
+        send_button = self.browser.find_element_by_css_selector(
+            "button.sqdOP.yWX7d.y3zKF.cB_4K[type=button]")
+        send_button.click()
+
+    def commentpost(self, commentlist, lenpm=6, countforrepeatcomment=1):
 
         print(" - Commenting ...")
 
@@ -459,14 +365,14 @@ class instabot:
 
         for i in range(countforrepeatcomment):
 
-            random.shuffle(commentlist)
+            commentlist = randomlist(commentlist, lenpm)
 
             for commenttext in commentlist:
 
                 comment_input = self.browser.find_element_by_css_selector(
                     "textarea[aria-label='Add a comment…']")
 
-                sleep(8)
+                sleep(4)
 
                 self.browser.execute_script(
                     """document.querySelector("textarea[aria-label='Add a comment…']").value = ''""")
@@ -481,28 +387,28 @@ class instabot:
 
                 )
 
-                print(f"#{comment_count} - {commenttext}")
+                print(f" # {comment_count} - {commenttext}")
 
                 print(" - Posting comment ...")
 
                 comment_count += 1
 
-                if comment_count % 5 == 0:
-                    print(" - Sleeping ( 20 ) seconds ...")
-                    sleep(20)
+                # if comment_count % 5 == 0:
+                #     print(" - Sleeping ( 20 ) seconds ...")
+                #     sleep(10)
 
-                if comment_count % 15 == 0:
-                    print(" - Sleeping ( 40 ) seconds ...")
-                    sleep(40)
+                # if comment_count % 15 == 0:
+                #     print(" - Sleeping ( 40 ) seconds ...")
+                #     sleep(40)
 
     def likeandcommentallposts(self, commentlist, boollike, countforrepeatcomment=1, countforrepeatallfn=1):
         #    , commentlist, countforrepeatecomment, boollike
 
-        for i in countforrepeatallfn:
+        for i in range(countforrepeatallfn):
 
             print(" - Getting all posts | Loading ...")
 
-            sleep(8)
+            sleep(4)
 
             allposts = self.browser.find_elements(
                 By.CSS_SELECTOR, "div.v1Nh3.kIKUG._bz0w")
@@ -513,7 +419,7 @@ class instabot:
                 print(" - Opening post")
                 postdiv.click()
 
-                sleep(8)
+                sleep(4)
 
                 # set like sign :
                 self.likepost(boollike)
@@ -539,26 +445,29 @@ class instabot:
                 allposts = self.browser.find_elements(
                     By.CSS_SELECTOR, "div.v1Nh3.kIKUG._bz0w")
 
-                print(" - Sleeping ( 20 ) seconds ...")
-                sleep(20)
 
-
-insta = instabot("geckodriver.exe", True)
+############# ---- #############
+# for i in range(4):
+insta = Instabot("geckodriver.exe", True)
 
 insta.login("username",  # username
             "password")  # password
 
+# "https://www.instagram.com/p/CMCvkekgpTY/"
+# insta.getpost("...url..")  # url post
 
-# insta.getpost("")  # url post
-
+# insta.sendpost(["s3q.x", "web_dev"])
 # insta.likepost(True)  # set like for post (True) else (false)
-
-insta.getuserpage("s3q.x")
-
-insta.likeandcommentallposts(["🧡🧡.", "💛💛.", "❤️❤️.", "🖤🖤.", "👌👌.",
-                              "💜💜.", "💙💙.", "💚💚.", "💯🔥.", "😍😍."], True)
-
-# insta.commentpost(["🧡🔥🔥.", "💛🔥🔥.", "❤️🔥🔥.", "🖤🔥🔥.", "👌😍😍.",
-#                    "💜🔥🔥.", "💙🔥🔥.", "💚🔥🔥.", "💯🔥🔥.", "😍🔥🔥."],  # comment list
+# insta.commentpost(["🧡🧡.", "💛💛.", "❤️❤️.", "🖤🖤."],  # comment list
 
 #                   3)  # count for repeat comment
+
+
+# insta.getuserpage("s3q.x")
+
+# insta.likeandcommentallposts(["🧡🧡.", "💛💛.", "❤️❤️.", "🖤🖤."], True)
+
+
+# insta.getcbrowser().close()
+
+############# ---- #############
