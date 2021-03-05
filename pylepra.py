@@ -19,8 +19,8 @@ from selenium.webdriver.common.by import By
 
 class Maillepra:
 
-    def __init__(self, sender_email, password):
-        self.sender_email = str(sender_email).strip()  # <---- write your email
+    def __init__(self, email, password):
+        self.email = str(email).strip()  # <---- write your email
         self.password = str(password).strip()  # <---- write password
 
     def preparationforsendemail(self):
@@ -36,7 +36,7 @@ class Maillepra:
             "@ - Type message content and press enter : \n").strip()
 
         # check for emails and password :
-        if not re.match("[^@]+@[^@]+\.[^@]+", self.receiver_email) and not re.match("[^@]+@[^@]+\.[^@]+", self.sender_email) and self.password != "":
+        if not re.match("[^@]+@[^@]+\.[^@]+", self.receiver_email) and not re.match("[^@]+@[^@]+\.[^@]+", self.email) and self.password != "":
             print(" - Invalid email .!")
             return False
         else:
@@ -52,12 +52,12 @@ class Maillepra:
                     server.starttls()
 
                     #
-                    if not server.login(self.sender_email, self.password):
+                    if not server.login(self.email, self.password):
                         print(" - Failed to login .!")
                     else:
 
                         message = MIMEMultipart("alternative")
-                        message["From"] = self.sender_email
+                        message["From"] = self.email
                         message["To"] = self.receiver_email
                         message["Subject"] = self.subject
 
@@ -70,7 +70,7 @@ class Maillepra:
                         print(" - Loading ...")
 
                         #
-                        if server.sendmail(self.sender_email, self.receiver_email, message.as_string()):
+                        if server.sendmail(self.email, self.receiver_email, message.as_string()):
                             print(" - The email has been sent successfully .")
 
                     # Terminate the SMTP session :
@@ -78,13 +78,13 @@ class Maillepra:
             except:
                 print(" - Something is wrong .!")
 
-    def getinbox(self):
+    def getinbox(self, emailindex):
 
         print(" - GET EMIAL ...")
 
         imap = imaplib.IMAP4_SSL("imap.gmail.com")
 
-        imap.login(self.sender_email, self.password)
+        imap.login(self.email, self.password)
 
         # select inbox
         print(" - Select inbox ...")
@@ -92,7 +92,8 @@ class Maillepra:
 
         # number of top emails to fetch
         # numberemailfetch = 1
-        numberemailfetch = int(input("@ - Type email index : ").strip())
+        # numberemailfetch = int(input("@ - Type email index : ").strip())
+        numberemailfetch = int(emailindex)
 
         # total number of emails
         messagescount = int(messagesb[0])
@@ -169,8 +170,8 @@ mail = Maillepra("example@gmail.com",  # your account
 # mail.sendemail()
 
 #  - For Save Email :
-# mail.getinbox()
-# mail.saveemail()
+mail.getinbox(0)
+mail.saveemail()
 
 
 class instabot:
@@ -184,10 +185,156 @@ class instabot:
         self.browser = webdriver.Firefox(
             executable_path=executable_path, options=browser_options)
 
+    # def signup(self, email, epassword, fullname, username, password):
+
+    #     mail = Maillepra(email, epassword)
+
+    #     self.signupemailornumphone = email
+    #     self.signupfullname = fullname
+    #     self.signupusername = username
+    #     self.signuppassword = password
+
+    #     self.instasignupurl = "https://www.instagram.com/accounts/emailsignup/"
+
+    #     print(" - Start Bot ...")
+
+    #     print(" - Getting login page | Loading ...")
+
+    #     try:
+    #         self.browser.get(self.instasignupurl)
+
+    #         print(" - The post has been fetched successfully")
+    #     except:
+    #         print(" - The post was not successfully fetched")
+
+    #     sleep(2)
+
+    #     emailornumphone_input = self.browser.find_element_by_css_selector(
+    #         "input[name='emailOrPhone']")
+    #     fullname_input = self.browser.find_element_by_css_selector(
+    #         "input[name='fullName']")
+    #     username_input = self.browser.find_element_by_css_selector(
+    #         "input[name='username']")
+    #     password_input = self.browser.find_element_by_css_selector(
+    #         "input[name='password']")
+    #     submit_button = self.browser.find_element_by_xpath(
+    #         "//button[@type='submit']")
+
+    #     emailornumphone_input.send_keys(email)
+    #     fullname_input.send_keys(fullname)
+    #     username_input.send_keys(username)
+    #     password_input.send_keys(password)
+    #     submit_button.click()
+
+    #     sleep(6)
+
+    #     months_input = self.browser.find_element_by_css_selector(
+    #         "select[title='Month:']")
+    #     month_input = self.browser.find_element_by_css_selector(
+    #         "select[title='Month:'] option[value='8']")
+    #     days_input = self.browser.find_element_by_css_selector(
+    #         "select[title='Day:']")
+    #     day_input = self.browser.find_element_by_css_selector(
+    #         "select[title='Day:'] option[value='5']")
+    #     years_input = self.browser.find_element_by_css_selector(
+    #         "select[title='Year:']")
+    #     year_input = self.browser.find_element_by_css_selector(
+    #         "select[title='Year:'] option[value='2000']")
+
+    #     months_input.click()
+    #     month_input.click()
+    #     days_input.click()
+    #     day_input.click()
+    #     years_input.click()
+    #     year_input.click()
+
+    #     sleep(0.5)
+
+    #     next_button = self.browser.find_element_by_css_selector(
+    #         "button.sqdOP.L3NKy._4pI4F.y3zKF[type='button']")
+    #     next_button.click()
+
+    #     print(" - Wite email confirmation code ...")
+
+    #     sleep(20)
+
+    #     confirmationcode_input = self.browser.find_element_by_css_selector(
+    #         "input[name='email_confirmation_code']")
+    #     submit_button_2 = self.browser.find_element_by_xpath(
+    #         "//button[@type='submit']")
+
+    #     print(" - Get confirmation code ...")
+
+    #     sleep(6)
+
+    #     confirmationcode_input.send_keys(mail.getinbox(
+    #         0)["header"]["subject"][:6])
+    #     submit_button_2.click()
+
+    #     print(" - You have sign up successfully")
+
+    #     sleep(15)
+
+    # def connecttomysql(self, user, password, host):
+
+    #     configsqlconnect = {
+    #         "user": user,
+    #         "password": password,
+    #         "host": host
+    #     }
+
+    #     self.sqlconnect = mysql.connector.connect(**configsqlconnect)
+    #     self.sqlcursor = self.sqlconnect.cursor()
+
+    #     return self.sqlconnect
+
+    # def savesignupinsqldb(self):
+
+    #     print(" - Create insta database if not exists")
+
+    #     self.sqlcursor.execute("CREATE DATABASE IF NOT EXISTS insta")
+
+    #     print(" - Select insta database")
+    #     self.sqlconnect.database = "insta"
+
+    #     print(" - Create userssignup tablse in insta database if not exists")
+    #     self.sqlcursor.execute("CREATE TABLE IF NOT EXISTS `insta`.`userssignup` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `email-or-phone` CHAR(255) NOT NULL , `fullname` CHAR(255) NOT NULL , `username` CHAR(255) NOT NULL , `password` CHAR(255) NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB CHARSET=utf8 COLLATE utf8_general_ci;")
+
+    #     print(" - Make id and username columns * UNIQUE")
+    #     self.sqlcursor.execute("ALTER TABLE `userssignup` ADD UNIQUE(`id`);")
+    #     self.sqlcursor.execute(
+    #         "ALTER TABLE `userssignup` ADD UNIQUE(`username`);")
+
+    #     print(" - Insert data ...")
+    #     self.sqlcursor.execute(
+    #         f"""INSERT INTO `userssignup` (`id`, `email-or-phone`, `fullname`, `username`, `password`) VALUES ('', '{self.signupemailornumphone}', '{self.signupfullname}', '{self.signupusername}', '{self.signuppassword}');""")
+
+    #     print(" - Fetchall all rows")
+    #     self.sqlcursor.execute("SELECT * FROM `userssignup`")
+    #     result = self.sqlcursor.fetchall()
+    #     print(" - Result : ", result, "\n\n")
+
+    #     print(" - Commiting ..")
+    #     self.sqlconnect.commit()
+
+    #     return result
+
+    # def getuserssignupinsqldb(self):
+
+    #     print(" - Fetchall all rows")
+    #     self.sqlcursor.execute("SELECT * FROM `userssignup`")
+    #     result = self.sqlcursor.fetchall()
+    #     print(" - Result : ", result, "\n\n")
+
+    #     print(" - Commiting ..")
+    #     self.sqlconnect.commit()
+
+    #     return result
+
     def login(self, username, password):
 
-        self.username = username
-        self.password = password
+        self.loginusername = username
+        self.loginpassword = password
 
         self.instaloginurl = "https://www.instagram.com/accounts/login/"
 
@@ -199,23 +346,18 @@ class instabot:
 
         sleep(2)
 
-        try:
-            username_input = self.browser.find_element_by_css_selector(
-                "input[name='username']")
-            password_input = self.browser.find_element_by_css_selector(
-                "input[name='password']")
-            submit_button = self.browser.find_element_by_xpath(
-                "//button[@type='submit']")
+        username_input = self.browser.find_element_by_css_selector(
+            "input[name='username']")
+        password_input = self.browser.find_element_by_css_selector(
+            "input[name='password']")
+        submit_button = self.browser.find_element_by_xpath(
+            "//button[@type='submit']")
 
-            username_input.send_keys(username)
-            password_input.send_keys(password)
-            submit_button.click()
+        username_input.send_keys(username)
+        password_input.send_keys(password)
+        submit_button.click()
 
-            print(" - You have logged in successfully")
-
-        except:
-
-            print(" - You were not logged in successfully ||")
+        print(" - You have logged in successfully")
 
         sleep(15)
         # self.browser.get("https://www.instagram.com/accounts/onetap/")
@@ -401,7 +543,7 @@ class instabot:
                 sleep(20)
 
 
-insta = instabot("geckodriver.exe")
+insta = instabot("geckodriver.exe", True)
 
 insta.login("username",  # username
             "password")  # password
