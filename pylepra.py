@@ -1,4 +1,6 @@
+############# ---- #############
 import random
+from time import sleep
 import smtplib
 import imaplib
 import email
@@ -7,14 +9,13 @@ from email.mime.text import MIMEText
 import re
 import os
 import json
-
-from time import sleep
 from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
+# from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
+############# ---- #############
 
 
 def randomlist(listo, lenpm):
@@ -39,7 +40,7 @@ class Maillepra:
         self.password = str(password).strip()  # <---- write password
 
     def preparationforsendemail(self):
-
+        print(" - PREPARATION FOR SEND EMIAL ...")
         # <--- receiver email : salimalsulaimi204@gmail.com
         self.receiver_email = input(
             "@ - Type receiver email and press enter : ")
@@ -58,7 +59,7 @@ class Maillepra:
             return True
 
     def sendemail(self):
-        #
+        print(" - SENDING EMAIL ...")
         if self.preparationforsendemail():
 
             # manages a connection to an SMTP or ESMTP server
@@ -200,6 +201,8 @@ class Instabot:
         self.browser = webdriver.Firefox(
             executable_path=executable_path, options=browser_options)
 
+        print(" - STARTING BOT ...")
+
     def getcbrowser(self):
         return self.browser
 
@@ -209,8 +212,6 @@ class Instabot:
         self.loginpassword = password
 
         self.instaloginurl = "https://www.instagram.com/accounts/login/"
-
-        print(" - Start Bot ...")
 
         print(" - Getting login page | Loading ...")
 
@@ -295,7 +296,7 @@ class Instabot:
 
     def likepost(self, boollike):
 
-        print(" - Liking ...")
+        print(" - LIKING ...")
 
         like_button = self.browser.find_element_by_css_selector(
             "span.fr66n button.wpO6b[type='button']")
@@ -312,7 +313,7 @@ class Instabot:
 
     def sendpost(self, userslist):
 
-        print(" - Sending ...")
+        print(" - SENDING ...")
 
         sendpost_button = self.browser.find_element_by_css_selector(
             "span._5e4p button.wpO6b[type=button]")
@@ -343,7 +344,7 @@ class Instabot:
 
     def commentpost(self, commentlist, lenpm=6, countforrepeatcomment=1):
 
-        print(" - Commenting ...")
+        print(" - COMMENTING ...")
 
         comment_count = 0
 
@@ -399,6 +400,8 @@ class Instabot:
                 #     sleep(40)
 
     def likeandcommentallposts(self, commentlist, boollike, countforrepeatcomment=1, countforrepeatallfn=1):
+
+        print(" - COMMENTING AND LIKING FOR ALL POSTS HIS HAVE ...")
         #    , commentlist, countforrepeatecomment, boollike
 
         for i in range(countforrepeatallfn):
