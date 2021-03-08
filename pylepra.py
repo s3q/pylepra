@@ -1,4 +1,5 @@
 ############# ---- #############
+from os import path
 import random
 from time import sleep
 import smtplib
@@ -15,6 +16,11 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
+import urllib3
+from bs4 import BeautifulSoup
+import posixpath
+import urllib
+import asyncio
 ############# ---- #############
 
 
@@ -140,7 +146,7 @@ class Maillepra:
                 msbody = mspart.get_payload(decode=True)
 
                 # msbody = (str(msbody)[:str(msbody).find(">", str(msbody).find("<body"))] + "><pre>" + str(headerdict) + "</pre>" + str(
-                #     msbody)[str(msbody).find(">", str(msbody).find("<body")):]).encode('utf8')
+                #     msbody)[str(msbody).find(">", str(msbody).find("<body")):])
 
                 print("\n\n\n")
 
@@ -177,16 +183,16 @@ class Maillepra:
 
 
 ############# ---- #############
-mail = Maillepra("example@gmail.com",  # your account
-                 "password")  # password
+# mail = Maillepra("example@gmail.com",  # your account
+#                  "password")  # password
 
 # - For Send Email :
 # mail.preparationforsendemail()
 # mail.sendemail()
 
 #  - For Save Email :
-mail.getinbox(0)
-mail.saveemail()
+# mail.getinbox(0)
+# mail.saveemail()
 ############# ---- #############
 
 
@@ -448,10 +454,10 @@ class Instabot:
 
 ############# ---- #############
 # for i in range(4):
-insta = Instabot("geckodriver.exe", True)
+# insta = Instabot("geckodriver.exe", True)
 
-insta.login("username",  # username
-            "password")  # password
+# insta.login("username",  # username
+#             "password")  # password
 
 # "https://www.instagram.com/p/CMCvkekgpTY/"
 # insta.getpost("...url..")  # url post
@@ -470,4 +476,135 @@ insta.login("username",  # username
 
 # insta.getcbrowser().close()
 
+############# ---- #############
+
+
+class Fachtml:
+    def __init__(self, url):
+        req = urllib3.PoolManager()
+        print(f" - Requesting ... To {url}")
+        res = req.request(
+            "GET", url)
+
+        resdata = res.data
+        self.respage = BeautifulSoup(resdata, features="html.parser")
+
+        self.requrl = str(res.geturl())
+        self.reqfilename = str(posixpath.basename(
+            urllib.parse.urlparse(self.requrl).path)).strip()
+
+        if self.reqfilename != "":
+            self.requrl = self.requrl[:self.requrl.rfind('/')] + "/"
+
+        self.newdir = str(urllib.parse.urlparse(self.requrl).netloc) + \
+            str(posixpath.dirname(urllib.parse.urlparse(self.requrl).path))
+
+        if not path.isdir(self.newdir):
+            os.makedirs(self.newdir)
+
+    def downloadfilebylink(self, data, path="", link=""):
+
+        print(" - Save content in file ...")
+
+        filename = str(posixpath.basename(
+            self.getpathforpage(link))).strip()
+
+        filedir = str(posixpath.dirname(self.getpathforpage(link))).strip()
+        filedir = path + "/" + filedir
+        print("File dir : " + filedir)
+
+        if not os.path.isdir(filedir) and not filedir == "":
+            os.makedirs(filedir)
+        print(filename)
+        if filename == "":
+            filename = "index.html"
+        elif filename.endswith(".php"):
+            filename = filename.replace(".php", ".html")
+
+        newfilename = filedir + "/" + filename
+
+        print("Link : " + link)
+        print("Filename : " + filename)
+        print("New filename : " + newfilename, "\n")
+
+        if not os.path.isfile(newfilename) and not newfilename == "":
+            with open(newfilename, "w+", encoding='utf-8') as f:
+                f.write(str(data))
+
+    def getpagedata(self, url):
+
+        req = urllib3.PoolManager()
+        print(f" - Requesting ... To {url}")
+        res = req.request(
+            "GET", url)
+        return BeautifulSoup(res.data)
+
+    def getpathforpage(self, url):
+        return urllib.parse.urlparse(url).path
+
+    def download_htfile(self):
+
+        for link in self.respage.findAll(attrs={"href": re.compile("")}):
+            strlink = str(link.get("href"))
+            if not strlink.startswith("https://") or not strlink.startswith("http://"):
+                newlink = urllib.parse.urljoin(self.requrl, strlink)
+                link['href'] = link['href'].replace(strlink, newlink)
+
+        for link in self.respage.findAll(attrs={"src": re.compile("")}):
+            strlink = str(link.get("src"))
+            if not strlink.startswith("https://") or not strlink.startswith("http://"):
+                newlink = urllib.parse.urljoin(self.requrl, strlink)
+                link['src'] = link['src'].replace(strlink, newlink)
+
+        self.downloadfilebylink(self.respage, self.newdir, self.reqfilename)
+
+    def download_all_dependentfiles(self):
+
+        for link in self.respage.findAll(attrs={"href": re.compile("")}):
+            strlink = str(link.get("href")).strip()
+            if not strlink.startswith("https://") and not strlink.startswith("http://"):
+                newlink = urllib.parse.urljoin(self.requrl, strlink)
+                link['href'] = link['href'].replace(strlink, newlink)
+
+                resdata = self.getpagedata(newlink)
+
+                self.downloadfilebylink(resdata, self.newdir, strlink)
+
+        for link in self.respage.findAll(attrs={"src": re.compile("")}):
+            strlink = str(link.get("src")).strip()
+            if not strlink.startswith("https://") and not strlink.startswith("http://"):
+                newlink = urllib.parse.urljoin(self.requrl, strlink)
+                link['src'] = link['src'].replace(strlink, newlink)
+
+                resdata = self.getpagedata(newlink)
+                self.downloadfilebylink(resdata, self.newdir, strlink)
+
+        self.downloadfilebylink(self.respage, self.newdir, self.reqfilename)
+
+    def download_all_dependentfiles_wlink(self):
+
+        for link in self.respage.findAll(attrs={"href": re.compile("")}):
+            strlink = str(link.get("href")).strip()
+            if not strlink.startswith("https://") and not strlink.startswith("http://"):
+                newlink = urllib.parse.urljoin(self.requrl, strlink)
+
+                resdata = self.getpagedata(newlink)
+                self.downloadfilebylink(resdata, self.newdir, strlink)
+
+        for link in self.respage.findAll(attrs={"src": re.compile("")}):
+            strlink = str(link.get("src")).strip()
+            if not strlink.startswith("https://") and not strlink.startswith("http://"):
+                newlink = urllib.parse.urljoin(self.requrl, strlink)
+
+                resdata = self.getpagedata(newlink)
+                self.downloadfilebylink(resdata, self.newdir, strlink)
+
+        self.downloadfilebylink(self.respage, self.newdir, self.reqfilename)
+
+
+############# ---- #############
+fhtml = Fachtml("https://python.youth.om/")
+# fhtml.download_htfile()
+# fhtml.download_all_dependentfiles()
+fhtml.download_all_dependentfiles_wlink()
 ############# ---- #############
