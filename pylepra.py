@@ -603,7 +603,7 @@ class Fachtml:
 
 
 ############# ---- #############
-fhtml = Fachtml("https://python.youth.om/")
+fhtml = Fachtml("http://google.com/")
 # fhtml.download_htfile()
 # fhtml.download_all_dependentfiles()
 fhtml.download_all_dependentfiles_wlink()
